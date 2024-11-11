@@ -13,7 +13,6 @@ import co.edu.javeriana.as.personapp.application.usecase.PersonUseCase;
 import co.edu.javeriana.as.personapp.common.annotations.Adapter;
 import co.edu.javeriana.as.personapp.common.exceptions.InvalidOptionException;
 import co.edu.javeriana.as.personapp.common.setup.DatabaseOption;
-import co.edu.javeriana.as.personapp.domain.Gender;
 import co.edu.javeriana.as.personapp.domain.Person;
 import co.edu.javeriana.as.personapp.mapper.PersonaMapperRest;
 import co.edu.javeriana.as.personapp.model.request.PersonaRequest;
@@ -72,6 +71,44 @@ public class PersonaInputAdapterRest {
 			Person person = personInputPort.create(personaMapperRest.fromAdapterToDomain(request));
 			return personaMapperRest.fromDomainToAdapterRestMaria(person);
 		} catch (InvalidOptionException e) {
+			log.warn(e.getMessage());
+			//return new PersonaResponse("", "", "", "", "", "", "");
+		}
+		return null;
+	}
+
+	public PersonaResponse editarPersona(PersonaRequest request){
+		try{
+			setPersonOutputPortInjection(request.getDatabase());
+			Person person = personInputPort.edit(Integer.parseInt(request.getDni()),personaMapperRest.fromAdapterToDomain(request));
+			return personaMapperRest.fromDomainToAdapterRestMaria(person);
+		}catch (Exception e){
+			log.warn(e.getMessage());
+			//return new PersonaResponse("", "", "", "", "", "", "");
+		}
+		return null;
+	}
+
+	public PersonaResponse eliminarPersona(String database, String id){
+		try{
+			setPersonOutputPortInjection(database);
+			Boolean resultado = personInputPort.drop(Integer.parseInt(id));
+			return new PersonaResponse(resultado.toString(), "DELETED", "DELETED", "DELETED", "DELETED", database, "DELETED");
+		} catch (Exception e){
+			log.warn(e.getMessage());
+			//return new PersonaResponse("", "", "", "", "", "", "");
+		}
+		return null;
+	}
+
+	public PersonaResponse buscarPersona(String database, String id)
+	{
+		try{
+			setPersonOutputPortInjection(database);
+			Person person = personInputPort.findOne(Integer.parseInt(id));
+			return personaMapperRest.fromDomainToAdapterRestMaria(person);
+		}
+		catch(Exception e){
 			log.warn(e.getMessage());
 			//return new PersonaResponse("", "", "", "", "", "", "");
 		}
